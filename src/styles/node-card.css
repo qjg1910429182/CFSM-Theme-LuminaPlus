@@ -815,6 +815,207 @@
   white-space: nowrap;
 }
 
+.traffic-quota-uptime {
+  flex: 0 0 auto;
+  color: var(--status-success);
+  font-size: 11px;
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.traffic-quota-body {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.traffic-quota-body .traffic-quota-track {
+  flex: 1 1 auto;
+}
+
+.traffic-quota-body .traffic-quota-usage {
+  flex: 0 0 auto;
+}
+
+@container (min-width: 300px) and (max-width: 619px) {
+  .server-card-content {
+    gap: 12px;
+    padding: 16px 18px 14px;
+  }
+
+  .server-card-title-link {
+    font-size: 16px;
+  }
+
+  .server-card-actions {
+    gap: 3px;
+    margin-top: -2px;
+  }
+
+  .server-card-detail-link {
+    width: 24px;
+    height: 26px;
+  }
+
+  .server-card-detail-link svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .server-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .metric-item {
+    gap: 4px;
+  }
+
+  .metric-item > div:first-child {
+    gap: 3px;
+  }
+
+  .metric-item > div:first-child > div:first-child {
+    gap: 3px;
+  }
+
+  .metric-item > div:first-child svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .metric-item > div:first-child span,
+  .metric-item > div:first-child div {
+    font-size: 9px;
+  }
+
+  .metric-detail {
+    min-height: 11px;
+    font-size: 8.5px;
+  }
+
+  .metric-track,
+  .metric-track-canvas {
+    height: 7px;
+  }
+
+  .server-card-media-tags {
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow: hidden;
+    padding-top: 9px;
+  }
+
+  .server-card-media-tag {
+    height: 22px;
+    gap: 4px;
+    padding: 0 7px;
+    font-size: 9px;
+  }
+
+  .server-card-media-tag::before {
+    width: 6px;
+    height: 6px;
+  }
+
+  .server-reference-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-radius: 18px;
+    padding: 8px 5px;
+  }
+
+  .server-reference-tile {
+    min-height: 68px;
+    gap: 8px;
+    padding: 4px 7px;
+    border-top: 0;
+  }
+
+  .server-reference-tile + .server-reference-tile {
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .server-reference-tile .server-card-meta {
+    gap: 3px;
+  }
+
+  .server-reference-tile .server-card-meta-label {
+    gap: 3px;
+    font-size: 9px;
+  }
+
+  .server-reference-tile .server-card-meta-label svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .server-reference-tile .server-card-meta-value {
+    font-size: 11px;
+  }
+
+  .server-reference-tile .server-card-meta-unit {
+    font-size: 8px;
+  }
+
+  .server-card-stack > .card-metric-section + .card-metric-section {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .traffic-quota-head {
+    gap: 6px;
+  }
+
+  .traffic-quota-label {
+    gap: 4px;
+    font-size: 9.5px;
+  }
+
+  .traffic-quota-reset,
+  .traffic-quota-uptime,
+  .traffic-quota-usage {
+    font-size: 9px;
+  }
+
+  .traffic-quota-body {
+    gap: 8px;
+  }
+
+  .traffic-quota-track {
+    height: 8px;
+  }
+
+  .multi-ping-columns {
+    gap: 10px;
+  }
+
+  .multi-ping-name {
+    font-size: 9px;
+  }
+
+  .multi-ping-value {
+    font-size: 10px;
+  }
+
+  .multi-ping-buckets {
+    height: 10px;
+  }
+
+  .server-card-footer {
+    padding-top: 12px;
+  }
+
+  .server-card-footer .server-card-meta-grid {
+    display: none;
+  }
+
+  .server-card-footer .dstatus-tags-row {
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+}
+
 @container (min-width: 620px) {
   .server-card-content {
     gap: 18px;

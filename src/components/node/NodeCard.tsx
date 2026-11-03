@@ -19,7 +19,6 @@ import {
 import { useNodeCardModel } from "@/hooks/useNodeCardModel";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useMetricColorsVersion } from "@/hooks/useMetricColors";
-import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { formatBytes } from "@/utils/format";
 import { getDisplayRegionCode } from "@/utils/geo";
 import {
@@ -81,7 +80,6 @@ export const NodeCard = memo(function NodeCard({
   // 自定义配色改动时 version 自增，拼进 redrawKey 让 canvas 进度条即时重画（含离线静态卡）。
   const colorsVersion = useMetricColorsVersion();
   const redrawKey = `${resolvedAppearance}:${colorsVersion}`;
-  const themeSettings = useThemeSettings();
   const model = useNodeCardModel(uuid, { includeMultiPing: true });
 
   if (!model.node) {
@@ -122,7 +120,6 @@ export const NodeCard = memo(function NodeCard({
   } = model;
   // 「卡片显示价格」关掉后不渲染价格 chip。
   const renewalPrice = showCardPrice ? metaRenewalPrice : null;
-  const showConnections = themeSettings.isReady && themeSettings.showConnections;
   const mediaTags = tags.filter(isMediaUnlockTag);
   const regularTags = tags.filter((tag) => !isMediaUnlockTag(tag));
   const lineTags = [
@@ -171,7 +168,6 @@ export const NodeCard = memo(function NodeCard({
             expire={expire}
             expireColor={expireColor}
             renewalPrice={renewalPrice}
-            showConnections={showConnections}
           />
 
           <NodeTrafficQuota
@@ -180,6 +176,7 @@ export const NodeCard = memo(function NodeCard({
             detail={traffic.detail}
             tooltip={traffic.tooltip}
             resetDay={node.traffic_reset_day}
+            uptime={uptime}
           />
 
           {homepagePingLines.length > 0 ? (
@@ -283,7 +280,6 @@ function NodeReferenceInfoStrip({
   expire,
   expireColor,
   renewalPrice,
-  showConnections,
 }: {
   node: NodeCardNode;
   upRate: ByteRateDisplay;
@@ -291,7 +287,6 @@ function NodeReferenceInfoStrip({
   expire: DisplayStat;
   expireColor: string;
   renewalPrice: string | null;
-  showConnections: boolean;
 }) {
   return (
     <div className="card-metric-section server-reference-strip">
@@ -341,24 +336,18 @@ function NodeReferenceInfoStrip({
         />
       </div>
       <div className="server-reference-tile">
-        {showConnections ? (
-          <>
-            <FooterStat
-              icon={<Network size={16} strokeWidth={2.1} />}
-              label="TCP"
-              value={node.connectionsTcp.toLocaleString()}
-              color="var(--progress-network)"
-            />
-            <FooterStat
-              icon={<Network size={16} strokeWidth={2.1} />}
-              label="UDP"
-              value={node.connectionsUdp.toLocaleString()}
-              color="var(--text-primary)"
-            />
-          </>
-        ) : (
-          <span className="server-reference-empty">{t("card.connections")}</span>
-        )}
+        <FooterStat
+          icon={<Network size={16} strokeWidth={2.1} />}
+          label="TCP"
+          value={node.connectionsTcp.toLocaleString()}
+          color="var(--progress-network)"
+        />
+        <FooterStat
+          icon={<Network size={16} strokeWidth={2.1} />}
+          label="UDP"
+          value={node.connectionsUdp.toLocaleString()}
+          color="var(--text-primary)"
+        />
       </div>
     </div>
   );
@@ -499,12 +488,14 @@ const NodeTrafficQuota = memo(function NodeTrafficQuota({
   detail,
   tooltip,
   resetDay,
+  uptime,
 }: {
   litCount: number;
   remainingLabel: string;
   detail: string;
   tooltip: string;
   resetDay: number;
+  uptime: DisplayStat;
 }) {
   const resetDays = daysUntilTrafficReset(resetDay);
   return (
@@ -523,10 +514,13 @@ const NodeTrafficQuota = memo(function NodeTrafficQuota({
             </span>
           )}
         </span>
-        <span className="traffic-quota-usage">{detail}</span>
+        <span className="traffic-quota-uptime">
+          {t("card.uptimeLabel")} {uptime.value}{uptime.unit}
+        </span>
       </div>
-      <div className="traffic-quota-track" aria-hidden>
-        {TRAFFIC_QUOTA_SEGMENT_COLORS.map((color, i) => {
+      <div className="traffic-quota-body">
+        <div className="traffic-quota-track" aria-hidden>
+          {TRAFFIC_QUOTA_SEGMENT_COLORS.map((color, i) => {
           // litCount === -1:哨兵值,第 0 段画成段内一道细边(细边宽度 = TRAFFIC_SLIVER_RATIO),
           // 而不是点亮/熄灭一整段。见 trafficQuotaLitCount 顶部注释。
           const background =
@@ -535,8 +529,10 @@ const NodeTrafficQuota = memo(function NodeTrafficQuota({
               : i < litCount
                 ? color
                 : "var(--progress-bg)";
-          return <span key={i} className="traffic-quota-segment" style={{ background }} />;
-        })}
+            return <span key={i} className="traffic-quota-segment" style={{ background }} />;
+          })}
+        </div>
+        <span className="traffic-quota-usage">{detail}</span>
       </div>
     </div>
   );
