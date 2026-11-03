@@ -808,6 +808,25 @@
   display: none;
 }
 
+.server-reference-tile--renewal {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.server-reference-tile--renewal .server-card-meta {
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+}
+
+.server-reference-tile--renewal .server-card-meta + .server-card-meta {
+  border-left: 1px solid var(--border-subtle);
+  padding-left: 10px;
+}
+
 .traffic-quota-reset {
   color: var(--text-tertiary);
   font-size: inherit;
@@ -920,7 +939,7 @@
   }
 
   .server-reference-strip {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr 1.35fr 0.85fr;
     border-radius: 18px;
     padding: 8px 5px;
   }
@@ -956,6 +975,18 @@
 
   .server-reference-tile .server-card-meta-unit {
     font-size: 8px;
+  }
+
+  .server-reference-tile--renewal {
+    gap: 6px;
+  }
+
+  .server-reference-tile--renewal .server-card-meta {
+    gap: 2px;
+  }
+
+  .server-reference-tile--renewal .server-card-meta + .server-card-meta {
+    padding-left: 6px;
   }
 
   .server-card-stack > .card-metric-section + .card-metric-section {

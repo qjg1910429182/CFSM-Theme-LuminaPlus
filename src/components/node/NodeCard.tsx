@@ -320,7 +320,7 @@ function NodeReferenceInfoStrip({
           color="var(--text-primary)"
         />
       </div>
-      <div className="server-reference-tile">
+      <div className="server-reference-tile server-reference-tile--renewal">
         <FooterStat
           icon={<Calendar size={16} strokeWidth={2.1} />}
           label={t("card.expire")}
