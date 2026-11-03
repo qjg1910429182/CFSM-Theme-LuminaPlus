@@ -320,10 +320,11 @@ function NodeReferenceInfoStrip({
           color="var(--text-primary)"
         />
       </div>
-      <div className="server-reference-tile server-reference-tile--renewal">
+      <div className="server-reference-tile">
         <FooterStat
           icon={<Calendar size={16} strokeWidth={2.1} />}
           label={t("card.expire")}
+          shortLabel="余"
           value={expire.value}
           unit={expire.unit}
           color={expireColor}
@@ -331,6 +332,7 @@ function NodeReferenceInfoStrip({
         <FooterStat
           icon={<CircleDollarSign size={16} strokeWidth={2.2} />}
           label={t("card.billing")}
+          shortLabel="$"
           value={renewalPrice || t("billing.free")}
           color={renewalPrice ? "var(--status-success)" : "var(--text-tertiary)"}
         />
@@ -367,7 +369,7 @@ function NodeMetricSection({
       <MetricBar
         icon={<Cpu size={13} strokeWidth={2} />}
         label="CPU"
-        valueText={node.cpuPct.toFixed(2)}
+        valueText={node.cpuPct.toFixed(1)}
         unit="%"
         detailText={t("metric.cpuCores", { n: node.cpu_cores || 0 })}
         fraction={node.cpuPct / 100}
@@ -377,7 +379,7 @@ function NodeMetricSection({
       <MetricBar
         icon={<MemoryStick size={13} strokeWidth={2} />}
         label={t("metric.memory")}
-        valueText={node.ramPct.toFixed(2)}
+        valueText={node.ramPct.toFixed(1)}
         unit="%"
         detailText={`${formatBytes(node.ramUsed)} / ${formatBytes(node.ramTotal)}`}
         fraction={node.ramPct / 100}
@@ -957,11 +959,13 @@ function GlobeArrow({
 function FooterStat({
   icon,
   label,
+  shortLabel,
   value,
   unit,
   color,
 }: {
   label: string;
+  shortLabel?: string;
   value: string;
   unit?: string;
   color: string;
@@ -971,7 +975,8 @@ function FooterStat({
     <div className="server-card-meta">
       <div className="server-card-meta-label">
         {icon}
-        <span>{label}</span>
+        <span className="server-card-meta-label-long">{label}</span>
+        {shortLabel && <span className="server-card-meta-label-short">{shortLabel}</span>}
       </div>
       <span className="server-card-meta-value tabular" style={{ color }}>
         {value}

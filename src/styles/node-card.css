@@ -260,6 +260,10 @@
   letter-spacing: 0.02em;
 }
 
+.server-card-meta-label-short {
+  display: none;
+}
+
 .traffic-stat-value {
   flex: 0 0 auto;
   font-size: 20px;
@@ -808,25 +812,6 @@
   display: none;
 }
 
-.server-reference-tile--renewal {
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-}
-
-.server-reference-tile--renewal .server-card-meta {
-  flex: 1 1 0;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 3px;
-}
-
-.server-reference-tile--renewal .server-card-meta + .server-card-meta {
-  border-left: 1px solid var(--border-subtle);
-  padding-left: 10px;
-}
-
 .traffic-quota-reset {
   color: var(--text-tertiary);
   font-size: inherit;
@@ -884,11 +869,11 @@
 
   .server-metric-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 9px;
+    gap: 10px;
   }
 
   .metric-item {
-    gap: 4px;
+    gap: 6px;
   }
 
   .metric-item > div:first-child {
@@ -900,23 +885,28 @@
   }
 
   .metric-item > div:first-child svg {
-    width: 11px;
-    height: 11px;
+    width: 14px;
+    height: 14px;
   }
 
-  .metric-item > div:first-child span,
-  .metric-item > div:first-child div {
-    font-size: 9px;
+  .metric-item > div:first-child > div:first-child span:last-child {
+    font-size: 11px;
+  }
+
+  .metric-item > div:first-child > div:last-child,
+  .metric-item > div:first-child > div:last-child span {
+    font-size: 13px;
+    font-weight: 700;
   }
 
   .metric-detail {
-    min-height: 11px;
-    font-size: 8.5px;
+    min-height: 13px;
+    font-size: 10px;
   }
 
   .metric-track,
   .metric-track-canvas {
-    height: 7px;
+    height: 8px;
   }
 
   .server-card-media-tags {
@@ -939,15 +929,15 @@
   }
 
   .server-reference-strip {
-    grid-template-columns: 1fr 1fr 1.35fr 0.85fr;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     border-radius: 18px;
-    padding: 8px 5px;
+    padding: 10px 7px;
   }
 
   .server-reference-tile {
-    min-height: 68px;
+    min-height: 72px;
     gap: 8px;
-    padding: 4px 7px;
+    padding: 4px 8px;
     border-top: 0;
   }
 
@@ -960,33 +950,34 @@
   }
 
   .server-reference-tile .server-card-meta-label {
-    gap: 3px;
-    font-size: 9px;
+    gap: 4px;
+    font-size: 10px;
   }
 
   .server-reference-tile .server-card-meta-label svg {
-    width: 11px;
-    height: 11px;
+    width: 14px;
+    height: 14px;
   }
 
   .server-reference-tile .server-card-meta-value {
-    font-size: 11px;
+    font-size: 13px;
+    font-weight: 720;
   }
 
   .server-reference-tile .server-card-meta-unit {
     font-size: 8px;
   }
 
-  .server-reference-tile--renewal {
-    gap: 6px;
+  .server-reference-tile:nth-child(-n + 2) .server-card-meta-label span {
+    display: none;
   }
 
-  .server-reference-tile--renewal .server-card-meta {
-    gap: 2px;
+  .server-reference-tile:nth-child(3) .server-card-meta-label-long {
+    display: none;
   }
 
-  .server-reference-tile--renewal .server-card-meta + .server-card-meta {
-    padding-left: 6px;
+  .server-reference-tile:nth-child(3) .server-card-meta-label-short {
+    display: inline;
   }
 
   .server-card-stack > .card-metric-section + .card-metric-section {

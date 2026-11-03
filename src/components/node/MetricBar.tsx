@@ -74,13 +74,6 @@ export function MetricBar({
           )}
         </div>
       </div>
-      <div
-        className="metric-detail"
-        title={detailText}
-        data-empty={detailText ? "false" : "true"}
-      >
-        {detailText ?? "\u00A0"}
-      </div>
       <div className="metric-track">
         <CanvasStrip
           className="metric-track-canvas"
@@ -88,6 +81,13 @@ export function MetricBar({
           redrawKey={redrawKey}
           draw={draw}
         />
+      </div>
+      <div
+        className="metric-detail"
+        title={detailText}
+        data-empty={detailText ? "false" : "true"}
+      >
+        {detailText ?? "\u00A0"}
       </div>
     </div>
   );
