@@ -14,6 +14,7 @@ import {
   CircleDollarSign,
   Database,
   Network,
+  ChartNoAxesColumnIncreasing,
 } from "lucide-react";
 import { useNodeCardModel } from "@/hooks/useNodeCardModel";
 import { usePreferences } from "@/hooks/usePreferences";
@@ -74,7 +75,6 @@ export const NodeCard = memo(function NodeCard({
   const {
     node,
     traffic,
-    trafficTrend,
     ping,
     pingBuckets,
     homepagePingLines,
@@ -94,7 +94,6 @@ export const NodeCard = memo(function NodeCard({
     shouldRenderPingBars,
     pingLoading,
     pingError,
-    isOnline,
     isOffline,
     osName,
   } = model;
@@ -120,13 +119,14 @@ export const NodeCard = memo(function NodeCard({
             redrawKey={redrawKey}
           />
 
-          <NodeTrafficSection
+          <NodeReferenceInfoStrip
             node={node}
             upRate={upRate}
             downRate={downRate}
-            trafficTrend={trafficTrend}
-            isOnline={isOnline}
-            redrawKey={redrawKey}
+            expire={expire}
+            expireColor={expireColor}
+            renewalPrice={renewalPrice}
+            showConnections={showConnections}
           />
 
           <NodeTrafficQuota
@@ -135,23 +135,6 @@ export const NodeCard = memo(function NodeCard({
             detail={traffic.detail}
             tooltip={traffic.tooltip}
           />
-
-          {showConnections && (
-            <div className="card-metric-section server-card-meta-grid">
-              <FooterStat
-                icon={<Network size={13} strokeWidth={2} />}
-                label={t("card.tcp")}
-                value={node.connectionsTcp.toLocaleString()}
-                color="var(--progress-network)"
-              />
-              <FooterStat
-                icon={<Network size={13} strokeWidth={2} />}
-                label={t("card.udp")}
-                value={node.connectionsUdp.toLocaleString()}
-                color="var(--progress-network)"
-              />
-            </div>
-          )}
 
           {homepagePingLines.length > 0 ? (
             <MultiPingStatus
@@ -177,11 +160,8 @@ export const NodeCard = memo(function NodeCard({
         </div>
 
         <NodeCardFooter
-          expire={expire}
-          expireColor={expireColor}
           uptime={uptime}
           footerTags={footerTags}
-          renewalPrice={renewalPrice}
         />
       </div>
     </article>
@@ -223,6 +203,19 @@ function NodeCardHeader({
         )}
       </div>
       <div className="server-card-actions">
+        {(node.ipv4 || node.ipv6) && (
+          <span className="server-card-ip-badge">
+            IP {node.ipv4 ? "V4" : "V6"}
+          </span>
+        )}
+        <Link
+          to={`/server/${encodeURIComponent(node.uuid)}`}
+          className="server-card-detail-link"
+          title={detailLabels.title}
+          aria-label={detailLabels.ariaLabel}
+        >
+          <ChartNoAxesColumnIncreasing size={18} />
+        </Link>
         <Link
           to={`/server/${encodeURIComponent(node.uuid)}`}
           className="server-card-detail-link"
@@ -233,6 +226,94 @@ function NodeCardHeader({
         </Link>
       </div>
     </header>
+  );
+}
+
+function NodeReferenceInfoStrip({
+  node,
+  upRate,
+  downRate,
+  expire,
+  expireColor,
+  renewalPrice,
+  showConnections,
+}: {
+  node: NodeCardNode;
+  upRate: ByteRateDisplay;
+  downRate: ByteRateDisplay;
+  expire: DisplayStat;
+  expireColor: string;
+  renewalPrice: string | null;
+  showConnections: boolean;
+}) {
+  return (
+    <div className="card-metric-section server-reference-strip">
+      <div className="server-reference-tile">
+        <FooterStat
+          icon={<ArrowUp size={16} strokeWidth={2.3} />}
+          label={t("traffic.upload")}
+          value={upRate.value}
+          unit={upRate.unit}
+          color={speedRateColor(upRate.unit)}
+        />
+        <FooterStat
+          icon={<ArrowDown size={16} strokeWidth={2.3} />}
+          label={t("traffic.download")}
+          value={downRate.value}
+          unit={downRate.unit}
+          color={speedRateColor(downRate.unit)}
+        />
+      </div>
+      <div className="server-reference-tile">
+        <FooterStat
+          icon={<ArrowUp size={16} strokeWidth={2.2} />}
+          label={t("traffic.outbound")}
+          value={formatBytes(node.trafficUp)}
+          color="var(--text-primary)"
+        />
+        <FooterStat
+          icon={<ArrowDown size={16} strokeWidth={2.2} />}
+          label={t("traffic.inbound")}
+          value={formatBytes(node.trafficDown)}
+          color="var(--text-primary)"
+        />
+      </div>
+      <div className="server-reference-tile">
+        <FooterStat
+          icon={<Calendar size={16} strokeWidth={2.1} />}
+          label={t("card.expire")}
+          value={expire.value}
+          unit={expire.unit}
+          color={expireColor}
+        />
+        <FooterStat
+          icon={<CircleDollarSign size={16} strokeWidth={2.2} />}
+          label={t("card.billing")}
+          value={renewalPrice || t("billing.free")}
+          color={renewalPrice ? "var(--status-success)" : "var(--text-tertiary)"}
+        />
+      </div>
+      <div className="server-reference-tile">
+        {showConnections ? (
+          <>
+            <FooterStat
+              icon={<Network size={16} strokeWidth={2.1} />}
+              label="TCP"
+              value={node.connectionsTcp.toLocaleString()}
+              color="var(--progress-network)"
+            />
+            <FooterStat
+              icon={<Network size={16} strokeWidth={2.1} />}
+              label="UDP"
+              value={node.connectionsUdp.toLocaleString()}
+              color="var(--text-primary)"
+            />
+          </>
+        ) : (
+          <span className="server-reference-empty">{t("card.connections")}</span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -291,7 +372,7 @@ function NodeMetricSection({
   );
 }
 
-function NodeTrafficSection({
+export function NodeTrafficSection({
   node,
   upRate,
   downRate,
@@ -567,30 +648,12 @@ function FooterTagChip({ tag }: { tag: DisplayTag }) {
   );
 }
 
-function FooterPriceChip({ renewalPrice, titled }: { renewalPrice: string; titled?: boolean }) {
-  return (
-    <span
-      className="dstatus-price-chip"
-      title={titled ? t("card.renewalPriceTitle", { price: renewalPrice }) : undefined}
-    >
-      <CircleDollarSign size={12} strokeWidth={2.2} />
-      {renewalPrice}
-    </span>
-  );
-}
-
 function NodeCardFooter({
-  expire,
-  expireColor,
   uptime,
   footerTags,
-  renewalPrice,
 }: {
-  expire: DisplayStat;
-  expireColor: string;
   uptime: DisplayStat;
   footerTags: DisplayTag[];
-  renewalPrice: string | null;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -613,9 +676,7 @@ function NodeCardFooter({
       const availableWidth = row.clientWidth;
       const children = Array.from(measure.children) as HTMLElement[];
       const tagWidths = children.slice(0, footerTags.length).map((child) => child.offsetWidth);
-      const priceWidth = renewalPrice ? (children[footerTags.length]?.offsetWidth ?? 0) : 0;
-
-      let usedWidth = renewalPrice ? priceWidth : 0;
+      let usedWidth = 0;
       let nextVisibleCount = 0;
 
       for (const width of tagWidths) {
@@ -654,7 +715,7 @@ function NodeCardFooter({
       observer?.disconnect();
       if (!observer) window.removeEventListener("resize", updateVisibleTags);
     };
-  }, [footerTags, renewalPrice]);
+  }, [footerTags]);
 
   return (
     <div className="server-card-footer">
@@ -666,27 +727,18 @@ function NodeCardFooter({
           unit={uptime.unit}
           color="var(--progress-cpu)"
         />
-        <FooterStat
-          icon={<Calendar size={13} strokeWidth={2} />}
-          label={t("card.expire")}
-          value={expire.value}
-          unit={expire.unit}
-          color={expireColor}
-        />
       </div>
-      {(footerTags.length > 0 || renewalPrice) && (
+      {footerTags.length > 0 && (
         <>
           <div className="dstatus-tags-row" ref={rowRef} title={footerTags.length > 0 ? tagTitle : undefined}>
             {visibleTags.map((tag, index) => (
               <FooterTagChip key={`${tag.label}-${index}`} tag={tag} />
             ))}
-            {renewalPrice && <FooterPriceChip renewalPrice={renewalPrice} titled />}
           </div>
           <div className="dstatus-tags-row dstatus-tags-measure" ref={measureRef} aria-hidden>
             {footerTags.map((tag, index) => (
               <FooterTagChip key={`${tag.label}-${index}`} tag={tag} />
             ))}
-            {renewalPrice && <FooterPriceChip renewalPrice={renewalPrice} />}
           </div>
         </>
       )}

@@ -698,3 +698,216 @@
     gap: 12px;
   }
 }
+
+.server-card {
+  --reference-card-bg: #ffffff;
+  --reference-panel-bg: #f5f7fb;
+  --reference-chip-bg: #f2f4f7;
+  --reference-strong: #111827;
+  --reference-muted: #526071;
+  container-type: inline-size;
+  border-color: rgba(24, 31, 48, 0.08);
+  border-radius: 28px;
+  background: var(--reference-card-bg);
+  box-shadow: 0 18px 42px rgba(42, 53, 78, 0.08), 0 2px 8px rgba(42, 53, 78, 0.04);
+}
+
+.server-card:hover {
+  border-color: rgba(24, 31, 48, 0.12);
+  background: var(--reference-card-bg);
+  box-shadow: 0 22px 48px rgba(42, 53, 78, 0.1), 0 3px 10px rgba(42, 53, 78, 0.05);
+}
+
+:root[data-appearance="dark"] .server-card {
+  --reference-card-bg: #20262f;
+  --reference-panel-bg: #171c24;
+  --reference-chip-bg: #303844;
+  --reference-strong: #f4f7fb;
+  --reference-muted: #aeb8c6;
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@container (min-width: 620px) {
+  .server-card-content {
+    gap: 18px;
+    padding: 28px 36px 30px;
+  }
+
+  .server-card-title-link {
+    color: var(--reference-strong);
+    font-size: 24px;
+    letter-spacing: -0.035em;
+  }
+
+  .server-card-title-row > svg,
+  .server-card-title-row img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .server-card-subtitle,
+  .ip-stack-badge,
+  .dstatus-tag-chip,
+  .dstatus-price-chip {
+    min-height: 32px;
+    border-radius: 999px;
+    padding-inline: 0.8rem;
+    background: var(--reference-chip-bg);
+    color: var(--reference-muted);
+    font-size: 15px;
+  }
+
+  .server-card-actions {
+    align-items: center;
+    margin-top: 0;
+  }
+
+  .server-card-ip-badge {
+    display: inline-flex;
+    height: 34px;
+    align-items: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--status-warning) 14%, var(--reference-card-bg));
+    color: color-mix(in srgb, var(--status-warning) 68%, var(--reference-strong));
+    padding: 0 14px;
+    font-size: 15px;
+    font-weight: 760;
+    white-space: nowrap;
+  }
+
+  .server-card-detail-link {
+    width: 34px;
+    height: 34px;
+  }
+
+  .server-metric-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .metric-item {
+    gap: 9px;
+  }
+
+  .metric-item .metric-detail {
+    min-height: 18px;
+    color: var(--reference-muted);
+    font-size: 15px;
+  }
+
+  .metric-track,
+  .metric-track-canvas {
+    height: 12px;
+  }
+
+  .server-card-stack > .card-metric-section + .card-metric-section {
+    margin-top: 18px;
+    padding-top: 18px;
+  }
+
+  .server-reference-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    border: 0;
+    border-radius: 24px;
+    background: var(--reference-panel-bg);
+    padding: 14px 10px;
+  }
+
+  .server-reference-tile {
+    display: flex;
+    min-width: 0;
+    min-height: 72px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 4px 16px;
+  }
+
+  .server-reference-tile + .server-reference-tile {
+    border-left: 1px solid var(--border-subtle);
+  }
+
+  .server-reference-strip:has(.server-reference-empty) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .server-reference-tile:has(.server-reference-empty) {
+    display: none;
+  }
+
+  .server-reference-tile .server-card-meta {
+    min-height: 22px;
+  }
+
+  .server-reference-empty {
+    color: var(--reference-muted);
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .traffic-stat-label,
+  .traffic-quota-label,
+  .server-health-label,
+  .server-card-meta-label {
+    color: var(--reference-muted);
+    font-size: 17px;
+  }
+
+  .traffic-stat-value {
+    color: var(--reference-strong);
+    font-size: 25px;
+  }
+
+  .traffic-stat-foot,
+  .traffic-quota-remain,
+  .traffic-quota-usage {
+    color: var(--reference-muted);
+    font-size: 16px;
+  }
+
+  .traffic-quota-track {
+    height: 12px;
+    gap: 4px;
+  }
+
+  .traffic-quota-segment {
+    border-radius: 5px;
+  }
+
+  .multi-ping-name,
+  .server-health-label {
+    font-size: 17px;
+  }
+
+  .multi-ping-value,
+  .server-health-value,
+  .server-card-meta-value {
+    font-size: 21px;
+  }
+
+  .health-bar-row,
+  .multi-ping-buckets {
+    height: 22px;
+  }
+
+  .server-card-footer {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding-top: 18px;
+  }
+
+  .server-card-footer .server-card-meta-grid {
+    display: block;
+  }
+}
+
+@media (max-width: 720px) {
+  .server-card-ip-badge {
+    display: none;
+  }
+}
