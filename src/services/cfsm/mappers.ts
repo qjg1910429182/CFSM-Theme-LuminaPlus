@@ -352,8 +352,8 @@ export function toNodeInfo(server: CfsmServer): NodeInfo {
     report_interval: server.report_interval,
     agent_version: server.agent_version,
     // 公共接口只给可达性标记，不给具体地址。
-    ipv4: String(server.ip_v4) === "1" ? "1" : "",
-    ipv6: String(server.ip_v6) === "1" ? "1" : "",
+    ipv4: !server.ip_v4 || String(server.ip_v4) === "0" ? "" : String(server.ip_v4),
+    ipv6: !server.ip_v6 || String(server.ip_v6) === "0" ? "" : String(server.ip_v6),
     created_at: "",
     updated_at: String(normalizeTimestamp(server.last_updated) || ""),
   };

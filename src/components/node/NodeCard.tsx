@@ -21,6 +21,7 @@ import { usePreferences } from "@/hooks/usePreferences";
 import { useMetricColorsVersion } from "@/hooks/useMetricColors";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { formatBytes } from "@/utils/format";
+import { getDisplayRegionCode } from "@/utils/geo";
 import {
   speedRateColor,
   trafficQuotaSegmentColor,
@@ -32,6 +33,8 @@ import { LatencyBars } from "./LatencyBars";
 import { QualityBars } from "./QualityBars";
 import { CanvasStrip, mixSrgbTowardWhite, safeCanvasColor } from "./CanvasStrip";
 import {
+  daysUntilTrafficReset,
+  formatIpBadge,
   joinTagTitle,
   nodeDetailLinkLabels,
   pingEmptyLabels,
@@ -49,6 +52,25 @@ import type { ByteRateDisplay } from "@/utils/format";
 type NodeCardNode = NodeInfo & NodeMetrics;
 type DisplayStat = { value: string; unit: string };
 type DisplayTag = { label: string; color: string };
+
+const MEDIA_UNLOCK_LABELS = new Set([
+  "YT",
+  "YOUTUBE",
+  "NF",
+  "NETFLIX",
+  "D+",
+  "DISNEY+",
+  "GPT",
+  "CHATGPT",
+  "TT",
+  "TIKTOK",
+  "PV",
+  "PRIMEVIDEO",
+]);
+
+function isMediaUnlockTag(tag: DisplayTag) {
+  return MEDIA_UNLOCK_LABELS.has(tag.label.trim().replaceAll(" ", "").toUpperCase());
+}
 
 export const NodeCard = memo(function NodeCard({
   uuid,
@@ -78,6 +100,7 @@ export const NodeCard = memo(function NodeCard({
     ping,
     pingBuckets,
     homepagePingLines,
+    tags,
     footerTags,
     subtitle,
     expire,
@@ -100,6 +123,18 @@ export const NodeCard = memo(function NodeCard({
   // 「卡片显示价格」关掉后不渲染价格 chip。
   const renewalPrice = showCardPrice ? metaRenewalPrice : null;
   const showConnections = themeSettings.isReady && themeSettings.showConnections;
+  const mediaTags = tags.filter(isMediaUnlockTag);
+  const regularTags = tags.filter((tag) => !isMediaUnlockTag(tag));
+  const lineTags = [
+    { label: getDisplayRegionCode(node.region), color: "gray" },
+    ...(node.ipv4 ? [{ label: "V4", color: "gray" }] : []),
+    ...(node.ipv6 ? [{ label: "V6", color: "gray" }] : []),
+    ...regularTags,
+  ].filter(
+    (tag, index, all) =>
+      tag.label &&
+      all.findIndex((candidate) => candidate.label.toLowerCase() === tag.label.toLowerCase()) === index,
+  );
 
   return (
     <article
@@ -119,6 +154,16 @@ export const NodeCard = memo(function NodeCard({
             redrawKey={redrawKey}
           />
 
+          {mediaTags.length > 0 && (
+            <div className="server-card-media-tags" title={joinTagTitle(mediaTags)}>
+              {mediaTags.map((tag, index) => (
+                <span key={`${tag.label}-${index}`} className="server-card-media-tag">
+                  {tag.label}
+                </span>
+              ))}
+            </div>
+          )}
+
           <NodeReferenceInfoStrip
             node={node}
             upRate={upRate}
@@ -134,6 +179,7 @@ export const NodeCard = memo(function NodeCard({
             remainingLabel={traffic.remainingLabel}
             detail={traffic.detail}
             tooltip={traffic.tooltip}
+            resetDay={node.traffic_reset_day}
           />
 
           {homepagePingLines.length > 0 ? (
@@ -161,7 +207,7 @@ export const NodeCard = memo(function NodeCard({
 
         <NodeCardFooter
           uptime={uptime}
-          footerTags={footerTags}
+          footerTags={lineTags.length > 0 ? lineTags : footerTags}
         />
       </div>
     </article>
@@ -178,6 +224,7 @@ function NodeCardHeader({
   osName: string;
 }) {
   const detailLabels = nodeDetailLinkLabels(node.name, osName);
+  const ipBadge = formatIpBadge(node.ipv4, node.ipv6);
   return (
     <header className="server-card-header">
       <div className="server-card-title-block">
@@ -203,9 +250,9 @@ function NodeCardHeader({
         )}
       </div>
       <div className="server-card-actions">
-        {(node.ipv4 || node.ipv6) && (
+        {ipBadge && (
           <span className="server-card-ip-badge">
-            IP {node.ipv4 ? "V4" : "V6"}
+            {ipBadge}
           </span>
         )}
         <Link
@@ -451,12 +498,15 @@ const NodeTrafficQuota = memo(function NodeTrafficQuota({
   remainingLabel,
   detail,
   tooltip,
+  resetDay,
 }: {
   litCount: number;
   remainingLabel: string;
   detail: string;
   tooltip: string;
+  resetDay: number;
 }) {
+  const resetDays = daysUntilTrafficReset(resetDay);
   return (
     <div
       className="card-metric-section traffic-quota"
@@ -467,6 +517,11 @@ const NodeTrafficQuota = memo(function NodeTrafficQuota({
           <Database size={13} strokeWidth={2} />
           <span>{t("card.remainingTraffic")}</span>
           <strong className="traffic-quota-remain">{remainingLabel}</strong>
+          {resetDays != null && (
+            <span className="traffic-quota-reset">
+              {t("card.trafficResetIn", { n: resetDays })}
+            </span>
+          )}
         </span>
         <span className="traffic-quota-usage">{detail}</span>
       </div>

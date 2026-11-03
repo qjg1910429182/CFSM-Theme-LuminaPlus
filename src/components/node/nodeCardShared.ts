@@ -10,6 +10,35 @@ export function joinTagTitle(tags: { label: string }[]) {
   return tags.map((tag) => tag.label).join(" / ");
 }
 
+export function formatIpBadge(ipv4?: string | null, ipv6?: string | null) {
+  const v4 = ipv4?.trim() ?? "";
+  const v4Prefix = /^([0-9]{1,3})[.]/.exec(v4)?.[1];
+  if (v4Prefix) return `IP ${v4Prefix}`;
+  if (v4) return "IP V4";
+
+  const v6 = ipv6?.trim() ?? "";
+  const v6Prefix = /^([0-9a-f]{1,4}):/i.exec(v6)?.[1];
+  if (v6Prefix) return `IP ${v6Prefix}`;
+  if (v6) return "IP V6";
+  return "";
+}
+
+export function daysUntilTrafficReset(resetDay: number, now = new Date()) {
+  if (!Number.isInteger(resetDay) || resetDay < 1 || resetDay > 31) return null;
+
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const resolveDate = (year: number, month: number) => {
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    return new Date(year, month, Math.min(resetDay, lastDay));
+  };
+
+  let target = resolveDate(today.getFullYear(), today.getMonth());
+  if (target <= today) {
+    target = resolveDate(today.getFullYear(), today.getMonth() + 1);
+  }
+  return Math.round((target.getTime() - today.getTime()) / 86_400_000);
+}
+
 /** ≥10% 取整，否则保留一位小数。 */
 export function formatCompactPercent(value: number) {
   if (!Number.isFinite(value) || value <= 0) return "0%";

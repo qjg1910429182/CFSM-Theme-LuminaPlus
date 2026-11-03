@@ -110,6 +110,7 @@ export const zh = {
   "card.tcp": "TCP 连接",
   "card.udp": "UDP 连接",
   "card.trafficTip": "已用 {used} · 共 {limit} · 剩余 {remaining}\n计算方式：{rule}",
+  "card.trafficResetIn": "{n} 天后重置",
   "card.trafficTipUnlimited": "已用 {used} · 不限流量\n计算方式：{rule}",
   "card.remainingTraffic": "剩余流量",
   "card.traffic": "流量",

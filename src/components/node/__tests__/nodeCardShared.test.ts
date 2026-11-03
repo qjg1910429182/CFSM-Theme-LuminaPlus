@@ -1,10 +1,28 @@
 import { describe, expect, it } from "vitest";
 import type { PingOverviewBucket } from "@/types/cfsm";
 import {
+  daysUntilTrafficReset,
   formatCompactExpire,
+  formatIpBadge,
   healthBarInteractionModel,
   healthBarSlotModel,
 } from "@/components/node/nodeCardShared";
+
+describe("reference card labels", () => {
+  it("shows only the public IP prefix when an address is available", () => {
+    expect(formatIpBadge("104.21.2.3", "")).toBe("IP 104");
+    expect(formatIpBadge("38.12.1.4", "")).toBe("IP 38");
+    expect(formatIpBadge("1", "")).toBe("IP V4");
+    expect(formatIpBadge("", "2602:abcd::1")).toBe("IP 2602");
+  });
+
+  it("calculates the next monthly traffic reset safely", () => {
+    expect(daysUntilTrafficReset(15, new Date(2026, 10, 3))).toBe(12);
+    expect(daysUntilTrafficReset(1, new Date(2026, 10, 3))).toBe(28);
+    expect(daysUntilTrafficReset(31, new Date(2026, 1, 10))).toBe(18);
+    expect(daysUntilTrafficReset(0, new Date(2026, 10, 3))).toBeNull();
+  });
+});
 
 function bucket(value: number | null, loss: number | null = 0): PingOverviewBucket {
   return {

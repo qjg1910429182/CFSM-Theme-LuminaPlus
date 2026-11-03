@@ -108,6 +108,7 @@ export const es: Messages = {
   "card.tcp": "Conex. TCP",
   "card.udp": "Conex. UDP",
   "card.trafficTip": "Usado {used} · Cuota {limit} · Quedan {remaining}\nSe cuenta: {rule}",
+  "card.trafficResetIn": "se reinicia en {n} d",
   "card.trafficTipUnlimited": "Usado {used} · Sin cuota\nSe cuenta: {rule}",
   "card.remainingTraffic": "Tráfico restante",
   "card.traffic": "Tráfico",

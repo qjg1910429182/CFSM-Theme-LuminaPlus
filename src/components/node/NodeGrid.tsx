@@ -55,8 +55,8 @@ import type { RenewalReminderSource } from "@/utils/renewalReminder";
 
 // 卡片视图网格密度；列表档由独立组件布局。
 const GRID_LAYOUT: Record<NodeViewMode, { className: string; minColumnWidth: number }> = {
-  large: { className: "grid gap-4 xl:gap-5", minColumnWidth: 680 },
-  compact: { className: "grid gap-4 xl:gap-5", minColumnWidth: 680 },
+  large: { className: "grid gap-4 xl:gap-5", minColumnWidth: 320 },
+  compact: { className: "grid gap-3 xl:gap-4", minColumnWidth: 320 },
   mini: { className: "grid gap-3 xl:gap-3.5", minColumnWidth: 260 },
   // 占位以满足 Record 穷尽。
   list: { className: "", minColumnWidth: 0 },
@@ -702,11 +702,18 @@ export function NodeGrid() {
     themeSettings.isReady && themeSettings.showRegionBar && regionOptions.length > 1;
   // 分组标签栏与卡片网格共用列定义，让标签栏左缘对齐首卡。
   const isMini = mode === "mini";
+  const isLarge = mode === "large";
   const isList = mode === "list";
   const { className: gridClassName, minColumnWidth } = GRID_LAYOUT[mode];
-  const gridWrapClassName = isMini ? `${gridClassName} node-grid-mini` : gridClassName;
+  const gridWrapClassName = isMini
+    ? `${gridClassName} node-grid-mini`
+    : isLarge
+      ? `${gridClassName} node-grid-large`
+      : gridClassName;
   const gridStyle = isList
     ? undefined
+    : isLarge
+      ? undefined
     : isMini
       ? ({ "--mini-card-min-width": `${minColumnWidth}px` } as MiniGridStyle)
       : { gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minColumnWidth}px), 1fr))` };
