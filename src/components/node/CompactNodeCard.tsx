@@ -101,6 +101,9 @@ function CompactGauge({
         <strong className="tabular">{value}</strong>
       </div>
       <div className="compact-node-gauge-track" aria-hidden />
+      <div className="compact-node-gauge-detail" title={detail}>
+        {detail || "\u00A0"}
+      </div>
     </div>
   );
 }
@@ -739,7 +742,7 @@ export const CompactNodeCard = memo(function CompactNodeCard({
   const showTrafficTotal = themeSettings.isReady && themeSettings.compactShowTrafficTotal;
   const showBilling = themeSettings.isReady && themeSettings.compactShowBilling;
   const showUptime = themeSettings.isReady && themeSettings.compactShowUptime;
-  const showConnections = themeSettings.isReady && themeSettings.showConnections;
+  const showConnections = true;
   // 开关关闭或节点离线时,完全跳过格式化工作。
   const uptimeLabel = showUptime && !isOffline ? formatCompactUptime(node.uptime) : "";
 

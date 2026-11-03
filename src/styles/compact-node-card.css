@@ -415,6 +415,71 @@
   );
 }
 
+.compact-node-gauge-detail {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 560;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container (min-width: 300px) and (max-width: 619px) {
+  .compact-node-vitals {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    border-top: 0;
+    padding-top: 2px;
+  }
+
+  .compact-node-gauge {
+    gap: 6px;
+  }
+
+  .compact-node-gauge-label {
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .compact-node-gauge-label svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .compact-node-gauge strong {
+    font-size: 14px;
+  }
+
+  .compact-node-gauge-track {
+    height: 8px;
+  }
+
+  .compact-node-gauge-detail {
+    font-size: 9.5px;
+  }
+
+  .compact-node-info-strip {
+    border: 0;
+    border-radius: 18px;
+    background: var(--reference-panel-bg);
+  }
+
+  .compact-node-info-tile {
+    min-height: 72px;
+    padding: 8px;
+  }
+
+  .compact-node-info-row {
+    font-size: 11px;
+  }
+
+  .compact-node-info-row-value {
+    font-size: 13px;
+  }
+}
+
 /* 大卡 canvas 的每一段都有 2px 轻倒角。小卡继续用单元素遮罩以保留滚动性能，
    在支持图片遮罩的浏览器里把 18 个硬方块换成同语义的微圆角段；上面的线性遮罩是兜底。 */
 @supports ((-webkit-mask-image: url("data:image/svg+xml,%3Csvg%3E%3C/svg%3E")) or (mask-image: url("data:image/svg+xml,%3Csvg%3E%3C/svg%3E"))) {
@@ -907,6 +972,27 @@
 
   .compact-node-health-bar {
     transition: none;
+  }
+}
+
+@container (min-width: 300px) and (max-width: 619px) {
+  .compact-node-info-strip {
+    border: 0;
+    border-radius: 18px;
+    background: var(--reference-panel-bg);
+  }
+
+  .compact-node-info-tile {
+    min-height: 72px;
+    padding: 8px;
+  }
+
+  .compact-node-info-row {
+    font-size: 11px;
+  }
+
+  .compact-node-info-row-value {
+    font-size: 13px;
   }
 }
 
