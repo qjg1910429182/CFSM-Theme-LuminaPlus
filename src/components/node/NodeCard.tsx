@@ -196,7 +196,7 @@ export const NodeCard = memo(function NodeCard({
           uptime={uptime}
           footerTags={[]}
         />
-        <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} />
+        <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} visibility={themeSettings.serverRouteVisibility[uuid]} />
       </div>
     </article>
   );

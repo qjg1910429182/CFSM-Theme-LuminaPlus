@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getCompactRouteLabel, getServerRouteOption, normalizeServerRoutes } from "@/utils/serverRoutes";
+import {
+  getCompactRouteLabel,
+  getServerRouteOption,
+  normalizeServerRoutes,
+  normalizeServerRouteVisibility,
+} from "@/utils/serverRoutes";
 
 describe("normalizeServerRoutes", () => {
   it("keeps valid carrier routes per node", () => {
@@ -44,5 +49,12 @@ describe("normalizeServerRoutes", () => {
   it("uses a concise AS54600 card label", () => {
     const option = getServerRouteOption("transit-pegtech-54600");
     expect(option && getCompactRouteLabel(option)).toBe("AS54600");
+  });
+
+  it("normalizes per-direction visibility", () => {
+    expect(normalizeServerRouteVisibility({
+      nodeA: { outbound: true, inbound: false, unknown: true },
+      nodeB: "invalid",
+    })).toEqual({ nodeA: { outbound: true, inbound: false } });
   });
 });

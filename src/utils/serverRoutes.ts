@@ -12,6 +12,7 @@ export interface ServerRouteOption {
 export type DirectionRouteSelection = Partial<Record<RouteCarrier, string>>;
 export type ServerRouteSelection = Partial<Record<RouteDirection, DirectionRouteSelection>>;
 export type ServerRoutesByNode = Record<string, ServerRouteSelection>;
+export type ServerRouteVisibility = Record<string, Partial<Record<RouteDirection, boolean>>>;
 
 export const ROUTE_CARRIERS: Array<{ id: RouteCarrier; label: string }> = [
   { id: "ct", label: "电信" },
@@ -30,6 +31,7 @@ export const SERVER_ROUTE_OPTIONS: ServerRouteOption[] = [
   { id: "cu-cup", tier: "premium", owner: "联通", label: "CUP AS10099 + 9929" },
   { id: "cm-cmin2", tier: "premium", owner: "移动", label: "CMIN2 (AS58807)" },
   { id: "premium-bgp", tier: "premium", owner: "三网", label: "三网精品 BGP" },
+  { id: "ct-ctg-gia", tier: "premium", owner: "电信", label: "CTG GIA" },
 
   { id: "ct-cn2-gt", tier: "optimized", owner: "电信", label: "CN2 GT (AS4809)" },
   { id: "ct-ctgnet", tier: "optimized", owner: "电信", label: "CTGNet (AS23764)" },
@@ -77,16 +79,18 @@ const COMPACT_ROUTE_LABELS: Record<string, string> = {
   "cu-cup": "CUP 9929",
   "cm-cmin2": "CMIN2",
   "premium-bgp": "精品 BGP",
+  "ct-ctg-gia": "CTG GIA",
   "ct-cn2-gt": "CN2 GT",
   "cu-10099-4837": "10099+4837",
   "cu-10099-9929": "10099+9929",
   "cm-cmi-optimized": "CMI 优化",
   "ct-163": "163",
   "cu-4837": "4837",
-  "cu-10099": "CUGI 10099",
+  "cu-10099": "AS10099",
   "cm-cmnet": "CMNET",
   "cm-cmi": "CMI",
   "transit-pegtech-54600": "AS54600",
+  "transit-lumen": "Level3",
 };
 
 export function getCompactRouteLabel(option: ServerRouteOption) {
@@ -118,6 +122,21 @@ export function normalizeServerRoutes(value: unknown): ServerRoutesByNode {
       ...(Object.keys(inbound).length ? { inbound } : Object.keys(legacy).length ? { inbound: legacy } : {}),
     };
     if (Object.keys(selection).length > 0) result[uuid] = selection;
+  }
+  return result;
+}
+
+export function normalizeServerRouteVisibility(value: unknown): ServerRouteVisibility {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const result: ServerRouteVisibility = {};
+  for (const [uuid, raw] of Object.entries(value)) {
+    if (!uuid || !raw || typeof raw !== "object" || Array.isArray(raw)) continue;
+    const visibility: Partial<Record<RouteDirection, boolean>> = {};
+    for (const direction of ROUTE_DIRECTIONS) {
+      const setting = (raw as Record<string, unknown>)[direction.id];
+      if (typeof setting === "boolean") visibility[direction.id] = setting;
+    }
+    if (Object.keys(visibility).length > 0) result[uuid] = visibility;
   }
   return result;
 }

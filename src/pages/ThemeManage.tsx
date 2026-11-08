@@ -340,6 +340,9 @@ function pickManagedThemeSettings(settings: ResolvedThemeSettings) {
     serverRoutes: Object.fromEntries(
       Object.keys(settings.serverRoutes).sort().map((uuid) => [uuid, settings.serverRoutes[uuid]]),
     ),
+    serverRouteVisibility: Object.fromEntries(
+      Object.keys(settings.serverRouteVisibility).sort().map((uuid) => [uuid, settings.serverRouteVisibility[uuid]]),
+    ),
     hiddenNodes: settings.hiddenNodes,
     costIgnoredNodes: settings.costIgnoredNodes,
     // 按键排序:costPremiums 的键序随编辑历史漂移(删掉再加回同一键会排到最后),而 dirty /
@@ -990,6 +993,16 @@ export function ThemeManage() {
       else delete serverRoutes[uuid];
       return { ...prev, serverRoutes };
     });
+  }, []);
+  const patchServerRouteVisibility = useCallback((uuid: string, direction: RouteDirection, visible: boolean) => {
+    editVersionRef.current += 1;
+    setDraft((prev) => ({
+      ...prev,
+      serverRouteVisibility: {
+        ...prev.serverRouteVisibility,
+        [uuid]: { ...(prev.serverRouteVisibility[uuid] ?? {}), [direction]: visible },
+      },
+    }));
   }, []);
   // 绑定关系的三个入口(勾选/全选/清空)都是基于前值的函数式更新,单独收口。
   const patchBindings = useCallback(
@@ -2192,12 +2205,21 @@ export function ThemeManage() {
                           <div className="grid gap-3">
                             {ROUTE_DIRECTIONS.map((direction) => (
                               <div key={direction.id} className="rounded-xl border border-[var(--border-subtle)] p-3">
-                                <div className="mb-2 text-[11px] font-bold tracking-[0.08em] text-[var(--text-secondary)]">{direction.label}</div>
-                                <div className="grid gap-2 sm:grid-cols-3">
+                                <label className="mb-2 flex cursor-pointer items-center justify-between gap-3">
+                                  <span className="text-[11px] font-bold tracking-[0.08em] text-[var(--text-secondary)]">{direction.label}</span>
+                                  <input
+                                    type="checkbox"
+                                    checked={draft.serverRouteVisibility[client.uuid]?.[direction.id] !== false}
+                                    onChange={(event) => patchServerRouteVisibility(client.uuid, direction.id, event.target.checked)}
+                                    aria-label={`显示${direction.label}`}
+                                    className="h-4 w-4 accent-[var(--progress-cpu)]"
+                                  />
+                                </label>
+                                <div className="grid gap-2 sm:grid-cols-3" data-disabled={draft.serverRouteVisibility[client.uuid]?.[direction.id] === false ? "true" : "false"}>
                                   {ROUTE_CARRIERS.map((carrier) => (
                                     <label key={carrier.id} className="flex min-w-0 flex-col gap-1.5">
                                       <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{carrier.label}</span>
-                                      <select value={draft.serverRoutes[client.uuid]?.[direction.id]?.[carrier.id] ?? ""} onChange={(event) => patchServerRoute(client.uuid, direction.id, carrier.id, event.target.value)} className="surface-inset min-w-0 px-2 py-2 text-[12px] text-[var(--text-primary)] outline-none">
+                                      <select disabled={draft.serverRouteVisibility[client.uuid]?.[direction.id] === false} value={draft.serverRoutes[client.uuid]?.[direction.id]?.[carrier.id] ?? ""} onChange={(event) => patchServerRoute(client.uuid, direction.id, carrier.id, event.target.value)} className="surface-inset min-w-0 px-2 py-2 text-[12px] text-[var(--text-primary)] outline-none disabled:cursor-not-allowed disabled:opacity-45">
                                         <option value="">未选择</option>
                                         {(["premium", "optimized", "standard"] as const).map((tier) => (
                                           <optgroup key={tier} label={tier === "premium" ? "第一梯队 · 皇冠精品" : tier === "optimized" ? "第二梯队 · 钻石优化" : "普通国际 · 标准线路"}>

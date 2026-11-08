@@ -33,7 +33,12 @@ import {
   normalizePingLineOverridesByNode,
   type PingLineOverridesByNode,
 } from "@/utils/pingLineOverrides";
-import { normalizeServerRoutes, type ServerRoutesByNode } from "@/utils/serverRoutes";
+import {
+  normalizeServerRoutes,
+  normalizeServerRouteVisibility,
+  type ServerRoutesByNode,
+  type ServerRouteVisibility,
+} from "@/utils/serverRoutes";
 
 export type Appearance = "system" | "light" | "dark";
 export type NodeViewMode = "large" | "compact" | "mini" | "list";
@@ -84,6 +89,7 @@ export interface ResolvedThemeSettings {
   compactShowUptime: boolean;
   showConnections: boolean;
   serverRoutes: ServerRoutesByNode;
+  serverRouteVisibility: ServerRouteVisibility;
   hiddenNodes: string[];
   costIgnoredNodes: string[];
   costPremiums: Record<string, CostPremiumEntry>;
@@ -132,6 +138,7 @@ export const DEFAULT_THEME_SETTINGS: ResolvedThemeSettings = {
   compactShowUptime: true,
   showConnections: false,
   serverRoutes: {},
+  serverRouteVisibility: {},
   hiddenNodes: [],
   costIgnoredNodes: [],
   costPremiums: {},
@@ -298,6 +305,7 @@ export function normalizeThemeSettings(
     // 默认关闭(需手动开启):连接数是个小众指标,很多 agent 也不上报,所以只在显式启用时才显示。
     showConnections: settings?.showConnections === true,
     serverRoutes: normalizeServerRoutes(settings?.serverRoutes),
+    serverRouteVisibility: normalizeServerRouteVisibility(settings?.serverRouteVisibility),
     hiddenNodes: normalizeNodeIdentityList(settings?.hiddenNodes),
     costIgnoredNodes: normalizeCostIgnoredNodes(settings?.costIgnoredNodes),
     costPremiums: normalizeCostPremiums(settings?.costPremiums),

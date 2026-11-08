@@ -516,6 +516,10 @@ export interface ThemeSettings {
     string,
     Partial<Record<"outbound" | "inbound", Partial<Record<"ct" | "cu" | "cm", string>>>>
   >;
+  serverRouteVisibility?: Record<
+    string,
+    Partial<Record<"outbound" | "inbound", boolean>>
+  >;
   hiddenNodes?: string[];
   costIgnoredNodes?: string[];
   // 值支持旧版纯数字(自动升格)或 { amount, paidCny?, acquiredAt? } 条目,见 normalizeCostPremiums。

@@ -5,11 +5,18 @@ import {
   ROUTE_CARRIERS,
   ROUTE_DIRECTIONS,
   type ServerRouteSelection,
+  type RouteDirection,
 } from "@/utils/serverRoutes";
 
-export function ServerRouteBadges({ routes }: { routes: ServerRouteSelection | undefined }) {
+export function ServerRouteBadges({
+  routes,
+  visibility,
+}: {
+  routes: ServerRouteSelection | undefined;
+  visibility?: Partial<Record<RouteDirection, boolean>>;
+}) {
   if (!routes) return null;
-  const groups = ROUTE_DIRECTIONS.map((direction) => ({
+  const groups = ROUTE_DIRECTIONS.filter((direction) => visibility?.[direction.id] !== false).map((direction) => ({
     direction,
     items: ROUTE_CARRIERS.flatMap((carrier) => {
       const option = getServerRouteOption(routes[direction.id]?.[carrier.id]);

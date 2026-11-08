@@ -786,7 +786,7 @@ export const CompactNodeCard = memo(function CompactNodeCard({
           pingError={pingError}
         />
       )}
-      <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} />
+      <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} visibility={themeSettings.serverRouteVisibility[uuid]} />
     </article>
   );
 });
