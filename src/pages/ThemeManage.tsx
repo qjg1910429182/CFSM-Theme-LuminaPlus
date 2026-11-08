@@ -114,8 +114,10 @@ import {
 import { HOME_SORT_FIELDS, homeSortFieldLabel } from "@/utils/homeSort";
 import {
   ROUTE_CARRIERS,
+  ROUTE_DIRECTIONS,
   SERVER_ROUTE_OPTIONS,
   type RouteCarrier,
+  type RouteDirection,
 } from "@/utils/serverRoutes";
 
 const APPEARANCE_OPTIONS = [
@@ -973,13 +975,16 @@ export function ThemeManage() {
     },
     [],
   );
-  const patchServerRoute = useCallback((uuid: string, carrier: RouteCarrier, routeId: string) => {
+  const patchServerRoute = useCallback((uuid: string, direction: RouteDirection, carrier: RouteCarrier, routeId: string) => {
     editVersionRef.current += 1;
     setDraft((prev) => {
       const current = prev.serverRoutes[uuid] ?? {};
+      const nextDirection = { ...(current[direction] ?? {}) };
+      if (routeId) nextDirection[carrier] = routeId;
+      else delete nextDirection[carrier];
       const nextSelection = { ...current };
-      if (routeId) nextSelection[carrier] = routeId;
-      else delete nextSelection[carrier];
+      if (Object.keys(nextDirection).length > 0) nextSelection[direction] = nextDirection;
+      else delete nextSelection[direction];
       const serverRoutes = { ...prev.serverRoutes };
       if (Object.keys(nextSelection).length > 0) serverRoutes[uuid] = nextSelection;
       else delete serverRoutes[uuid];
@@ -2172,7 +2177,7 @@ export function ThemeManage() {
 
               <InstancePanel id="set-server-routes" kicker="线路标识" title="逐服务器线路选择" aside={<Crown size={16} />}>
                 <div className="flex flex-col gap-4">
-                  <p className="setting-hint">每台服务器可分别选择电信、联通、移动线路。保存后会在对应服务器卡片底部显示分级线路徽章。</p>
+                  <p className="setting-hint">每台服务器分别配置去程和回程；每个方向均可为电信、联通、移动选择不同承载线路，支持跨网回程。</p>
                   {clientsLoading && <div className="flex min-h-[15vh] items-center justify-center"><Spinner size={24} /></div>}
                   {!clientsLoading && sortedClients.length === 0 && <div className="theme-manage-empty-state"><span>{t("settings.noNodesYet")}</span></div>}
                   {!clientsLoading && sortedClients.length > 0 && (
@@ -2184,21 +2189,28 @@ export function ThemeManage() {
                             <strong className="truncate text-[13px] text-[var(--text-primary)]">{client.name}</strong>
                             <span className="ml-auto text-[11px] text-[var(--text-tertiary)]">{client.group}</span>
                           </div>
-                          <div className="grid gap-2 sm:grid-cols-3">
-                            {ROUTE_CARRIERS.map((carrier) => (
-                              <label key={carrier.id} className="flex min-w-0 flex-col gap-1.5">
-                                <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{carrier.label}</span>
-                                <select value={draft.serverRoutes[client.uuid]?.[carrier.id] ?? ""} onChange={(event) => patchServerRoute(client.uuid, carrier.id, event.target.value)} className="surface-inset min-w-0 px-2 py-2 text-[12px] text-[var(--text-primary)] outline-none">
-                                  <option value="">未选择</option>
-                                  {(["premium", "optimized", "standard"] as const).map((tier) => (
-                                    <optgroup key={tier} label={tier === "premium" ? "第一梯队 · 皇冠精品" : tier === "optimized" ? "第二梯队 · 钻石优化" : "普通国际 · 标准线路"}>
-                                      {SERVER_ROUTE_OPTIONS.filter((item) => item.carrier === carrier.id && item.tier === tier).map((item) => (
-                                        <option key={item.id} value={item.id}>{tier === "premium" ? "♛" : tier === "optimized" ? "◆" : "·"} {item.label}</option>
-                                      ))}
-                                    </optgroup>
+                          <div className="grid gap-3">
+                            {ROUTE_DIRECTIONS.map((direction) => (
+                              <div key={direction.id} className="rounded-xl border border-[var(--border-subtle)] p-3">
+                                <div className="mb-2 text-[11px] font-bold tracking-[0.08em] text-[var(--text-secondary)]">{direction.label}</div>
+                                <div className="grid gap-2 sm:grid-cols-3">
+                                  {ROUTE_CARRIERS.map((carrier) => (
+                                    <label key={carrier.id} className="flex min-w-0 flex-col gap-1.5">
+                                      <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{carrier.label}</span>
+                                      <select value={draft.serverRoutes[client.uuid]?.[direction.id]?.[carrier.id] ?? ""} onChange={(event) => patchServerRoute(client.uuid, direction.id, carrier.id, event.target.value)} className="surface-inset min-w-0 px-2 py-2 text-[12px] text-[var(--text-primary)] outline-none">
+                                        <option value="">未选择</option>
+                                        {(["premium", "optimized", "standard"] as const).map((tier) => (
+                                          <optgroup key={tier} label={tier === "premium" ? "第一梯队 · 皇冠精品" : tier === "optimized" ? "第二梯队 · 钻石优化" : "普通国际 · 标准线路"}>
+                                            {SERVER_ROUTE_OPTIONS.filter((item) => item.tier === tier).map((item) => (
+                                              <option key={item.id} value={item.id}>{tier === "premium" ? "♛" : tier === "optimized" ? "◆" : "·"} {item.owner} · {item.label}</option>
+                                            ))}
+                                          </optgroup>
+                                        ))}
+                                      </select>
+                                    </label>
                                   ))}
-                                </select>
-                              </label>
+                                </div>
+                              </div>
                             ))}
                           </div>
                         </div>

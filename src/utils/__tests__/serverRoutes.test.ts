@@ -4,16 +4,28 @@ import { normalizeServerRoutes } from "@/utils/serverRoutes";
 describe("normalizeServerRoutes", () => {
   it("keeps valid carrier routes per node", () => {
     expect(normalizeServerRoutes({
-      nodeA: { ct: "ct-cn2-gia", cu: "cu-9929", cm: "cm-cmin2" },
+      nodeA: {
+        outbound: { ct: "ct-cn2-gia", cu: "cu-9929", cm: "cm-cmin2" },
+        inbound: { ct: "cm-cmin2", cu: "cu-9929", cm: "ct-cn2-gia" },
+      },
     })).toEqual({
-      nodeA: { ct: "ct-cn2-gia", cu: "cu-9929", cm: "cm-cmin2" },
+      nodeA: {
+        outbound: { ct: "ct-cn2-gia", cu: "cu-9929", cm: "cm-cmin2" },
+        inbound: { ct: "cm-cmin2", cu: "cu-9929", cm: "ct-cn2-gia" },
+      },
     });
   });
 
-  it("drops unknown routes and carrier mismatches", () => {
+  it("drops unknown routes and keeps cross-carrier return routes", () => {
     expect(normalizeServerRoutes({
-      nodeA: { ct: "cu-9929", cu: "unknown", cm: "cm-cmi" },
+      nodeA: { inbound: { ct: "cm-cmin2", cu: "unknown", cm: "ct-cn2-gia" } },
       nodeB: null,
-    })).toEqual({ nodeA: { cm: "cm-cmi" } });
+    })).toEqual({ nodeA: { inbound: { ct: "cm-cmin2", cm: "ct-cn2-gia" } } });
+  });
+
+  it("migrates legacy selections to inbound", () => {
+    expect(normalizeServerRoutes({ nodeA: { ct: "ct-cn2-gia", cm: "cm-cmi" } })).toEqual({
+      nodeA: { inbound: { ct: "ct-cn2-gia", cm: "cm-cmi" } },
+    });
   });
 });

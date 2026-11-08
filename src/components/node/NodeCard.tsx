@@ -102,8 +102,6 @@ export const NodeCard = memo(function NodeCard({
     pingBuckets,
     homepagePingLines,
     tags,
-    footerTags,
-    subtitle,
     expire,
     expireColor,
     uptime,
@@ -124,26 +122,15 @@ export const NodeCard = memo(function NodeCard({
   // 「卡片显示价格」关掉后不渲染价格 chip。
   const renewalPrice = showCardPrice ? metaRenewalPrice : null;
   const mediaTags = tags.filter(isMediaUnlockTag);
-  const regularTags = tags.filter((tag) => !isMediaUnlockTag(tag));
-  const lineTags = [
-    { label: getDisplayRegionCode(node.region), color: "gray" },
-    ...(node.ipv4 ? [{ label: "V4", color: "gray" }] : []),
-    ...(node.ipv6 ? [{ label: "V6", color: "gray" }] : []),
-    ...regularTags,
-  ].filter(
-    (tag, index, all) =>
-      tag.label &&
-      all.findIndex((candidate) => candidate.label.toLowerCase() === tag.label.toLowerCase()) === index,
-  );
 
   return (
     <article
       className={clsx("server-card", isOffline && "is-offline")}
     >
       <div className="server-card-content">
-        <NodeCardHeader
-          node={node}
-          subtitle={subtitle}
+      <NodeCardHeader
+        node={node}
+        subtitle={getDisplayRegionCode(node.region)}
           osName={osName}
         />
 
@@ -207,7 +194,7 @@ export const NodeCard = memo(function NodeCard({
 
         <NodeCardFooter
           uptime={uptime}
-          footerTags={lineTags.length > 0 ? lineTags : footerTags}
+          footerTags={[]}
         />
         <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} />
       </div>

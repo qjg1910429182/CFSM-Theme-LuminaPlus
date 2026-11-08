@@ -21,6 +21,7 @@ import { useNodeCardModel } from "@/hooks/useNodeCardModel";
 import { HOMEPAGE_PING_BUCKET_COUNT } from "@/hooks/usePingOverview";
 import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { formatBytes } from "@/utils/format";
+import { getDisplayRegionCode } from "@/utils/geo";
 import { speedRateColor, speedRateColorFromBytes } from "@/utils/metricTone";
 import { supportsFineHover } from "@/utils/mediaQuery";
 import { formatHealthBucketTooltip } from "./pingBucketText";
@@ -724,8 +725,6 @@ export const CompactNodeCard = memo(function CompactNodeCard({
     ping,
     pingBuckets,
     homepagePingLines,
-    compactFooterTags: footerTags,
-    subtitle,
     renewalPrice,
     expire,
     expireColor,
@@ -753,7 +752,7 @@ export const CompactNodeCard = memo(function CompactNodeCard({
         node={node}
         osName={osName}
       />
-      <CompactNodeChips subtitle={subtitle} tags={footerTags} ipv4={node.ipv4} ipv6={node.ipv6} />
+      <CompactNodeChips subtitle={getDisplayRegionCode(node.region)} tags={[]} ipv4={node.ipv4} ipv6={node.ipv6} />
       <CompactNodeVitals node={node} loadFraction={loadFraction} />
       <CompactNodeInfoStrip
         node={node}
