@@ -885,26 +885,37 @@
 
 @container (min-width: 300px) and (max-width: 619px) {
   .server-route-panel {
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
-    padding-top: 11px;
+    border: 1px solid color-mix(in srgb, var(--border-subtle) 85%, transparent);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--reference-panel-bg) 72%, transparent);
+    padding: 12px;
   }
 
-  .server-route-group { gap: 6px; }
-  .server-route-group-title { font-size: 10px; }
+  .server-route-group { gap: 8px; }
+  .server-route-group + .server-route-group {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 10px;
+  }
+  .server-route-group-title { font-size: 11px; }
 
   .server-route-badges {
-    flex-wrap: nowrap;
-    gap: 5px;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    overflow: visible;
   }
 
   .server-route-badge {
-    max-width: calc((100% - 10px) / 3);
-    height: 25px;
-    padding: 0 8px;
+    width: 100%;
+    max-width: none;
+    height: 29px;
+    justify-content: center;
+    padding: 0 6px;
   }
 
-  .server-route-badge strong { font-size: 9px; }
+  .server-route-badge strong { font-size: 9.5px; }
   .server-route-carrier { display: none; }
 }
 

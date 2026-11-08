@@ -1,6 +1,7 @@
 import { Crown, Gem, Route } from "lucide-react";
 import {
   getServerRouteOption,
+  getCompactRouteLabel,
   ROUTE_CARRIERS,
   ROUTE_DIRECTIONS,
   type ServerRouteSelection,
@@ -29,7 +30,7 @@ export function ServerRouteBadges({ routes }: { routes: ServerRouteSelection | u
                 <span key={carrier.id} className="server-route-badge" data-tier={option.tier} title={`${carrier.label}：${option.owner} ${option.label}`}>
                   <Icon size={12} strokeWidth={2.2} />
                   <span className="server-route-carrier">{carrier.label}</span>
-                  <strong>{option.label.replace(/\s*\(AS\d+\)$/, "")}</strong>
+                  <strong>{getCompactRouteLabel(option)}</strong>
                 </span>
               );
             })}

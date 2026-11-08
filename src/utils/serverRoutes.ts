@@ -71,6 +71,28 @@ export function getServerRouteOption(id: string | undefined) {
   return id ? OPTION_BY_ID.get(id) : undefined;
 }
 
+const COMPACT_ROUTE_LABELS: Record<string, string> = {
+  "ct-cn2-gia": "CN2 GIA",
+  "cu-9929": "9929",
+  "cu-cup": "CUP 9929",
+  "cm-cmin2": "CMIN2",
+  "premium-bgp": "精品 BGP",
+  "ct-cn2-gt": "CN2 GT",
+  "cu-10099-4837": "10099+4837",
+  "cu-10099-9929": "10099+9929",
+  "cm-cmi-optimized": "CMI 优化",
+  "ct-163": "163",
+  "cu-4837": "4837",
+  "cu-10099": "CUGI 10099",
+  "cm-cmnet": "CMNET",
+  "cm-cmi": "CMI",
+  "transit-pegtech-54600": "AS54600",
+};
+
+export function getCompactRouteLabel(option: ServerRouteOption) {
+  return COMPACT_ROUTE_LABELS[option.id] ?? option.label.replace(/\s*\(AS\d+\)$/, "");
+}
+
 function normalizeDirection(value: unknown): DirectionRouteSelection {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const result: DirectionRouteSelection = {};
