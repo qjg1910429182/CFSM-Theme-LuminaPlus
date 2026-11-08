@@ -28,4 +28,16 @@ describe("normalizeServerRoutes", () => {
       nodeA: { inbound: { ct: "ct-cn2-gia", cm: "cm-cmi" } },
     });
   });
+
+  it("accepts AS54600 for any carrier and direction", () => {
+    expect(normalizeServerRoutes({
+      nodeA: {
+        outbound: { ct: "transit-pegtech-54600", cu: "transit-pegtech-54600", cm: "transit-pegtech-54600" },
+      },
+    })).toEqual({
+      nodeA: {
+        outbound: { ct: "transit-pegtech-54600", cu: "transit-pegtech-54600", cm: "transit-pegtech-54600" },
+      },
+    });
+  });
 });

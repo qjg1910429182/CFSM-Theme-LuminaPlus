@@ -51,6 +51,7 @@ export const SERVER_ROUTE_OPTIONS: ServerRouteOption[] = [
   { id: "cu-10099", tier: "standard", owner: "联通", label: "CUGI (AS10099)" },
   { id: "cm-cmnet", tier: "standard", owner: "移动", label: "CMNET (AS9808)" },
   { id: "cm-cmi", tier: "standard", owner: "移动", label: "CMI (AS58453)" },
+  { id: "transit-pegtech-54600", tier: "standard", owner: "区域接入", label: "PEG TECH (AS54600)" },
   { id: "transit-ntt", tier: "standard", owner: "国际", label: "NTT (AS2914)" },
   { id: "transit-cogent", tier: "standard", owner: "国际", label: "Cogent (AS174)" },
   { id: "transit-gtt", tier: "standard", owner: "国际", label: "GTT (AS3257)" },
