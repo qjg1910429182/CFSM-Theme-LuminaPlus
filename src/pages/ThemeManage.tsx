@@ -32,6 +32,7 @@ import {
   ListFilter,
   Moon,
   Network,
+  Crown,
   Plus,
   Rows3,
   Save,
@@ -111,6 +112,11 @@ import {
   type OverviewRatingKind,
 } from "@/utils/overviewRating";
 import { HOME_SORT_FIELDS, homeSortFieldLabel } from "@/utils/homeSort";
+import {
+  ROUTE_CARRIERS,
+  SERVER_ROUTE_OPTIONS,
+  type RouteCarrier,
+} from "@/utils/serverRoutes";
 
 const APPEARANCE_OPTIONS = [
   // label 写成 getter：每次读都按当前界面语言取。
@@ -329,6 +335,9 @@ function pickManagedThemeSettings(settings: ResolvedThemeSettings) {
     compactShowBilling: settings.compactShowBilling,
     compactShowUptime: settings.compactShowUptime,
     showConnections: settings.showConnections,
+    serverRoutes: Object.fromEntries(
+      Object.keys(settings.serverRoutes).sort().map((uuid) => [uuid, settings.serverRoutes[uuid]]),
+    ),
     hiddenNodes: settings.hiddenNodes,
     costIgnoredNodes: settings.costIgnoredNodes,
     // 按键排序:costPremiums 的键序随编辑历史漂移(删掉再加回同一键会排到最后),而 dirty /
@@ -964,6 +973,19 @@ export function ThemeManage() {
     },
     [],
   );
+  const patchServerRoute = useCallback((uuid: string, carrier: RouteCarrier, routeId: string) => {
+    editVersionRef.current += 1;
+    setDraft((prev) => {
+      const current = prev.serverRoutes[uuid] ?? {};
+      const nextSelection = { ...current };
+      if (routeId) nextSelection[carrier] = routeId;
+      else delete nextSelection[carrier];
+      const serverRoutes = { ...prev.serverRoutes };
+      if (Object.keys(nextSelection).length > 0) serverRoutes[uuid] = nextSelection;
+      else delete serverRoutes[uuid];
+      return { ...prev, serverRoutes };
+    });
+  }, []);
   // 绑定关系的三个入口(勾选/全选/清空)都是基于前值的函数式更新,单独收口。
   const patchBindings = useCallback(
     (updater: (prev: HomepagePingTaskBindings) => HomepagePingTaskBindings) => {
@@ -1794,6 +1816,7 @@ export function ThemeManage() {
                   </div>
                 </div>
               </InstancePanel>
+
             </>
           )}
 
@@ -2144,6 +2167,44 @@ export function ThemeManage() {
                       onPatch={patch}
                     />
                   </div>
+                </div>
+              </InstancePanel>
+
+              <InstancePanel id="set-server-routes" kicker="线路标识" title="逐服务器线路选择" aside={<Crown size={16} />}>
+                <div className="flex flex-col gap-4">
+                  <p className="setting-hint">每台服务器可分别选择电信、联通、移动线路。保存后会在对应服务器卡片底部显示分级线路徽章。</p>
+                  {clientsLoading && <div className="flex min-h-[15vh] items-center justify-center"><Spinner size={24} /></div>}
+                  {!clientsLoading && sortedClients.length === 0 && <div className="theme-manage-empty-state"><span>{t("settings.noNodesYet")}</span></div>}
+                  {!clientsLoading && sortedClients.length > 0 && (
+                    <div className="grid gap-3 xl:grid-cols-2">
+                      {sortedClients.map((client) => (
+                        <div key={client.uuid} className="surface-inset flex flex-col gap-3 px-4 py-4">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <Flag region={client.region} />
+                            <strong className="truncate text-[13px] text-[var(--text-primary)]">{client.name}</strong>
+                            <span className="ml-auto text-[11px] text-[var(--text-tertiary)]">{client.group}</span>
+                          </div>
+                          <div className="grid gap-2 sm:grid-cols-3">
+                            {ROUTE_CARRIERS.map((carrier) => (
+                              <label key={carrier.id} className="flex min-w-0 flex-col gap-1.5">
+                                <span className="text-[11px] font-semibold text-[var(--text-secondary)]">{carrier.label}</span>
+                                <select value={draft.serverRoutes[client.uuid]?.[carrier.id] ?? ""} onChange={(event) => patchServerRoute(client.uuid, carrier.id, event.target.value)} className="surface-inset min-w-0 px-2 py-2 text-[12px] text-[var(--text-primary)] outline-none">
+                                  <option value="">未选择</option>
+                                  {(["premium", "optimized", "standard"] as const).map((tier) => (
+                                    <optgroup key={tier} label={tier === "premium" ? "第一梯队 · 皇冠精品" : tier === "optimized" ? "第二梯队 · 钻石优化" : "普通国际 · 标准线路"}>
+                                      {SERVER_ROUTE_OPTIONS.filter((item) => item.carrier === carrier.id && item.tier === tier).map((item) => (
+                                        <option key={item.id} value={item.id}>{tier === "premium" ? "♛" : tier === "optimized" ? "◆" : "·"} {item.label}</option>
+                                      ))}
+                                    </optgroup>
+                                  ))}
+                                </select>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </InstancePanel>
             </>

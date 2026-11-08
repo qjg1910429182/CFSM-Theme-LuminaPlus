@@ -19,6 +19,7 @@ import {
 import { useNodeCardModel } from "@/hooks/useNodeCardModel";
 import { usePreferences } from "@/hooks/usePreferences";
 import { useMetricColorsVersion } from "@/hooks/useMetricColors";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
 import { formatBytes } from "@/utils/format";
 import { getDisplayRegionCode } from "@/utils/geo";
 import {
@@ -28,6 +29,7 @@ import {
 import { Flag } from "@/components/ui/Flag";
 import { OsLogo } from "@/components/ui/OsLogo";
 import { MetricBar } from "./MetricBar";
+import { ServerRouteBadges } from "./ServerRouteBadges";
 import { LatencyBars } from "./LatencyBars";
 import { QualityBars } from "./QualityBars";
 import { CanvasStrip, mixSrgbTowardWhite, safeCanvasColor } from "./CanvasStrip";
@@ -80,6 +82,7 @@ export const NodeCard = memo(function NodeCard({
   // 自定义配色改动时 version 自增，拼进 redrawKey 让 canvas 进度条即时重画（含离线静态卡）。
   const colorsVersion = useMetricColorsVersion();
   const redrawKey = `${resolvedAppearance}:${colorsVersion}`;
+  const themeSettings = useThemeSettings();
   const model = useNodeCardModel(uuid, { includeMultiPing: true });
 
   if (!model.node) {
@@ -206,6 +209,7 @@ export const NodeCard = memo(function NodeCard({
           uptime={uptime}
           footerTags={lineTags.length > 0 ? lineTags : footerTags}
         />
+        <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} />
       </div>
     </article>
   );

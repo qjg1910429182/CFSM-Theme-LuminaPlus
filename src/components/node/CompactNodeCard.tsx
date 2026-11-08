@@ -28,6 +28,7 @@ import { HealthBucketTooltip } from "./HealthBucketTooltip";
 import { SingleLineName } from "./PingLineSwitcher";
 import { resolveTouchBucketIndex, TOUCH_BUCKET_HOLD_MS } from "./touchBucketPick";
 import { MultiPingStatus } from "./MultiPingStatus";
+import { ServerRouteBadges } from "./ServerRouteBadges";
 import {
   formatCompactExpire,
   formatCompactPercent,
@@ -786,6 +787,7 @@ export const CompactNodeCard = memo(function CompactNodeCard({
           pingError={pingError}
         />
       )}
+      <ServerRouteBadges routes={themeSettings.serverRoutes[uuid]} />
     </article>
   );
 });
