@@ -5,7 +5,11 @@ import type uPlot from "uplot";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
 import { usePingRecords } from "@/hooks/useRecords";
 import { useCarrierNames } from "@/hooks/usePublicConfig";
-import { carrierTaskName } from "@/services/cfsm/mappers";
+import { useNodeMetrics, useShowThreeNetDetails } from "@/hooks/useNode";
+import { useNodeMultiPingTaskIds } from "@/hooks/usePingOverview";
+import { useThemeSettings } from "@/hooks/useThemeSettings";
+import { isHomepageMultiPingConfigured, orderTasksByCardLines } from "@/utils/pingTasks";
+import { carrierTaskName, disabledCarrierTaskIds } from "@/services/cfsm/mappers";
 import { InstancePanel, InstanceChartLoading } from "./InstancePanel";
 import {
   buildChartTooltipHooks,
@@ -115,6 +119,8 @@ const CHART_PADDING_RIGHT = 14;
 const SMOOTH_WINDOW_POINTS = 1;
 const SMOOTH_WINDOW_POINTS_PEAK = 13;
 
+const EMPTY_CARD_ORDER: readonly number[] = [];
+
 export function PingChart({
   uuid,
   hours,
@@ -154,15 +160,29 @@ export function PingChart({
   // 线路名以 `/api/config` 的自定义名为准：历史查询是按 uuid+hours 缓存的，站长改名
   // （或 config 晚于历史返回）不会让那份缓存重算，所以在这里按当前名字重新贴一遍。
   const carrierNames = useCarrierNames();
-  // API 顺序与后台任务权重一致，响应本身不一定包含可重排的权重。
-  const tasks = useMemo(
-    () =>
-      (data?.tasks ?? []).map((task) => ({
+  // 线路顺序跟这台节点卡片上的多线路顺序走（issue #13：卡片能调顺序，图表原来固定电信、联通、移动）。
+  // 口径和卡片同一份（站点设置 → 逐节点换线 → 本机换线）；单线路模式卡片没有顺序，照接口顺序。
+  // 颜色仍按位置给，排第一的永远是同一个颜色，默认顺序下和原来一模一样。
+  const { enableHomepageMultiPing } = useThemeSettings();
+  const showThreeNetDetails = useShowThreeNetDetails();
+  const nodeCardTaskIds = useNodeMultiPingTaskIds(uuid);
+  const cardOrder =
+    enableHomepageMultiPing && showThreeNetDetails && isHomepageMultiPingConfigured(nodeCardTaskIds)
+      ? nodeCardTaskIds
+      : EMPTY_CARD_ORDER;
+  // 后台刚关掉的线路（探测目标填 0）马上从图上去掉，不等历史里的旧数据过期。看的是节点当前数据，
+  // 实时帧每两秒来一次，所以拼成字符串当依赖：关掉的线路没变就不重算图表。
+  const liveMetrics = useNodeMetrics(uuid);
+  const disabledKey = disabledCarrierTaskIds(liveMetrics?.ping).join(",");
+  const tasks = useMemo(() => {
+    const disabled = new Set(disabledKey ? disabledKey.split(",").map(Number) : []);
+    return orderTasksByCardLines(data?.tasks ?? [], cardOrder)
+      .filter((task) => !disabled.has(task.id))
+      .map((task) => ({
         ...task,
         name: carrierTaskName(task.id, carrierNames),
-      })),
-    [carrierNames, data],
-  );
+      }));
+  }, [cardOrder, carrierNames, data, disabledKey]);
   const taskLabels = useMemo(() => {
     const counts = new Map<string, number>();
     for (const task of tasks) {
@@ -282,12 +302,19 @@ export function PingChart({
       cutPeak ? SMOOTH_WINDOW_POINTS_PEAK : SMOOTH_WINDOW_POINTS,
     );
 
+    // 丢包样本的时刻就是上面的锚点（`times` 里的某一个），查它在降采样里落进了哪一格。
+    const sourceIndex = reduced.sourceIndex;
+    const indexOfTime = sourceIndex
+      ? new Map(times.map((time, index) => [time, sourceIndex[index]] as const))
+      : null;
+    const resolveLossIndex = indexOfTime ? (time: number) => indexOfTime.get(time) : undefined;
+
     return {
       data: [reduced.times, ...smoothed] as uPlot.AlignedData,
       // 归到与折线同一套时间格上，色带才能和曲线逐像素对齐。削峰/平滑只作用于延迟，
       // 丢包始终是真实值。
       loss: taskKeys.map((key) =>
-        bucketPingLoss(lossSamples.get(key) ?? [], reduced.times),
+        bucketPingLoss(lossSamples.get(key) ?? [], reduced.times, resolveLossIndex),
       ),
     };
   }, [cutPeak, data, sortedRecords, taskKeySet, taskKeys, tasks]);

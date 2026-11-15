@@ -20,6 +20,7 @@ import {
   parseTrafficLimitBytes,
   toNodeInfo,
   toNodeMetrics,
+  disabledCarrierTaskIds,
 } from "@/services/cfsm/mappers";
 import { HistoryRowSchema } from "@/types/cfsm";
 
@@ -215,6 +216,21 @@ describe("toNodeMetrics", () => {
 
     expect(isServerOnline(stale, NOW)).toBe(false);
     expect(toNodeMetrics(stale, NOW).online).toBe(false);
+  });
+
+  it("does not keep a node online because its clock is ahead", () => {
+    // 站长 2026-10-26：PQS-tw 开机时时钟快了 7 小时 44 分，上报一次就关机，样本时间落在将来。
+    const fastClockGone = server({ last_updated: NOW + 7.7 * 3_600_000, timestamp: NOW + 7.7 * 3_600_000 });
+    expect(isServerOnline(fastClockGone, NOW)).toBe(false);
+
+    // 时钟快但还在上报：上报时刻是新的，照样在线；快几秒的正常抖动也不受影响。
+    const fastClockAlive = server({
+      last_updated: NOW + 7.7 * 3_600_000,
+      timestamp: NOW + 7.7 * 3_600_000,
+      report_timestamp: NOW - 2_000,
+    });
+    expect(isServerOnline(fastClockAlive, NOW)).toBe(true);
+    expect(isServerOnline(server({ last_updated: NOW + 5_000, timestamp: NOW + 5_000 }), NOW)).toBe(true);
   });
 
   it("judges online by when the backend heard from the node, not by the node's own clock", () => {
@@ -559,5 +575,19 @@ describe("inferIntervalSeconds", () => {
   it("is undefined without at least two distinct samples", () => {
     expect(inferIntervalSeconds([])).toBeUndefined();
     expect(inferIntervalSeconds([1000])).toBeUndefined();
+  });
+});
+
+describe("disabledCarrierTaskIds", () => {
+  it("lists the lines the node has turned off right now", () => {
+    // 电信、联通有值，移动整轮超时（负值，不算关掉），其余五条后台填了 0 → 当前数据里是 null。
+    const ping = { ...EMPTY_CARRIER_PING, ct: 36, cu: 34, cm: -1 };
+    expect(disabledCarrierTaskIds(ping)).toEqual([4, 5, 6, 7, 8]);
+  });
+
+  it("stays out of the way when there is nothing to go by", () => {
+    // 当前数据还没到，或一条有值的都没有：分不清是全关了还是没数据，不动图表。
+    expect(disabledCarrierTaskIds(undefined)).toEqual([]);
+    expect(disabledCarrierTaskIds(EMPTY_CARRIER_PING)).toEqual([]);
   });
 });
